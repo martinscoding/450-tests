@@ -1,8 +1,16 @@
 package ch.wiss.m450.starter_project;
 
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest
+import java.lang.reflect.Method;
+
+import org.junit.jupiter.api.Test;
+
 class StarterProjectApplicationTests {
 
+    @Test
+    void shouldHaveMainMethod() throws NoSuchMethodException {
+        Method mainMethod = StarterProjectApplication.class.getDeclaredMethod("main", String[].class);
+        assertNotNull(mainMethod);
+    }
 }

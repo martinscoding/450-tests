@@ -1,6 +1,5 @@
 package ch.wiss.m450.starter_project.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,22 +15,25 @@ import ch.wiss.m450.starter_project.repository.ItemRepository;
 @RequestMapping("/items")
 @CrossOrigin
 public class ItemController {
-    @Autowired
-    private ItemRepository _itemRepository;
+    private final ItemRepository itemRepository;
+
+    public ItemController(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
+    }
 
     @GetMapping
     public Iterable<Item> getItems() {
-        return _itemRepository.findAll();
+        return itemRepository.findAll();
     }
 
     @PostMapping("/{itemName}")
     public void addItem(@PathVariable String itemName) {
         Item newItem = new Item(itemName);
-        _itemRepository.save(newItem);
+        itemRepository.save(newItem);
     }
 
     @DeleteMapping("/{itemId}")
     public void deleteItem(@PathVariable int itemId) {
-        _itemRepository.deleteById(itemId);
+        itemRepository.deleteById(itemId);
     }
 }
