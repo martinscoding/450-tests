@@ -1,4 +1,6 @@
 package ch.wiss.m450.starter_project.dto;
 
-public class CreateItemRequest {
+import ch.wiss.m450.starter_project.model.ItemStatus;
+
+public record CreateItemRequest(String title, String description, ItemStatus status) {
 }

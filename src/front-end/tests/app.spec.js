@@ -1,78 +1,107 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-test("Load List: geladene Items werden angezeigt", async ({ page }) => {
+test("Item-Details werden geladen und angezeigt", async ({ page }) => {
   await page.route("http://localhost:8080/items", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify([
-        { id: 1, name: "Milch" },
-        { id: 2, name: "Brot" }
-      ])
-    });
-  });
-
-  await page.goto("http://localhost:5173");
-
-  await expect(page.getByText("Item List")).toBeVisible();
-  await expect(page.getByText("Milch")).toBeVisible();
-  await expect(page.getByText("Brot")).toBeVisible();
-});
-
-test("Add Item: Benutzer kann ein neues Item hinzufügen", async ({ page }) => {
-  let postWasCalled = false;
-
-  await page.route("http://localhost:8080/items", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify([])
-    });
-  });
-
-  await page.route("http://localhost:8080/items/Apfel", async (route) => {
-    postWasCalled = true;
-    await route.fulfill({
-      status: 200,
-      body: ""
-    });
-  });
-
-  await page.goto("http://localhost:5173");
-
-  await page.getByPlaceholder("Itemname").fill("Apfel");
-  await page.getByRole("button", { name: /add/i }).click();
-
-  expect(postWasCalled).toBeTruthy();
-});
-
-test("Delete Item: Benutzer kann ein Item löschen", async ({ page }) => {
-  let deleteWasCalled = false;
-
-  await page.route("http://localhost:8080/items", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify([
-        { id: 1, name: "Milch" }
-      ])
+      body: JSON.stringify([{ id: 1, title: "Milch", status: "OPEN" }]),
     });
   });
 
   await page.route("http://localhost:8080/items/1", async (route) => {
-    deleteWasCalled = true;
     await route.fulfill({
       status: 200,
-      body: ""
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: 1,
+        title: "Milch",
+        description: "2 Liter",
+        status: "OPEN",
+        comments: [{ id: 1, text: "Heute kaufen" }],
+      }),
     });
   });
 
   await page.goto("http://localhost:5173");
 
+  await expect(page.getByText("Item Details")).toBeVisible();
   await expect(page.getByText("Milch")).toBeVisible();
+  await expect(page.getByText("Heute kaufen")).toBeVisible();
+});
 
-  const deleteIcon = page.locator("svg").first();
-  await deleteIcon.click();
+test("Benutzer kann den Status ändern", async ({ page }) => {
+  let patchWasCalled = false;
 
-  expect(deleteWasCalled).toBeTruthy();
+  await page.route("http://localhost:8080/items", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([{ id: 1, title: "Milch", status: "OPEN" }]),
+    });
+  });
+
+  await page.route("http://localhost:8080/items/1", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: 1,
+        title: "Milch",
+        description: "2 Liter",
+        status: "OPEN",
+        comments: [],
+      }),
+    });
+  });
+
+  await page.route("http://localhost:8080/items/1/status", async (route) => {
+    patchWasCalled = true;
+    await route.fulfill({ status: 200, body: "" });
+  });
+
+  await page.goto("http://localhost:5173");
+
+  await page.getByLabel("Status").selectOption("DONE");
+  await page.getByRole("button", { name: /status speichern/i }).click();
+
+  expect(patchWasCalled).toBeTruthy();
+});
+
+test("Benutzer kann Kommentare hinzufügen", async ({ page }) => {
+  let commentWasCalled = false;
+
+  await page.route("http://localhost:8080/items", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([{ id: 1, title: "Milch", status: "OPEN" }]),
+    });
+  });
+
+  await page.route("http://localhost:8080/items/1", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: 1,
+        title: "Milch",
+        description: "2 Liter",
+        status: "OPEN",
+        comments: [],
+      }),
+    });
+  });
+
+  await page.route("http://localhost:8080/items/1/comments", async (route) => {
+    commentWasCalled = true;
+    await route.fulfill({ status: 201, body: "" });
+  });
+
+  await page.goto("http://localhost:5173");
+
+  await page.getByPlaceholder("Kommentar eingeben").fill("Heute kaufen");
+  await page.getByRole("button", { name: /kommentar hinzufügen/i }).click();
+
+  expect(commentWasCalled).toBeTruthy();
 });

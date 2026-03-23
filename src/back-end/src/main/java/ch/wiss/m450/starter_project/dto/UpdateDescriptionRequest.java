@@ -1,4 +1,4 @@
 package ch.wiss.m450.starter_project.dto;
 
-public class UpdateDescriptionRequest {
+public record UpdateDescriptionRequest(String description) {
 }

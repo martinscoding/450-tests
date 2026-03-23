@@ -1,4 +1,7 @@
 package ch.wiss.m450.starter_project.model;
 
-public class ItemStatus {
+public enum ItemStatus {
+    OPEN,
+    IN_PROGRESS,
+    DONE
 }

@@ -1,4 +1,4 @@
 package ch.wiss.m450.starter_project.dto;
 
-public class AddCommentRequest {
+public record AddCommentRequest(String text) {
 }
