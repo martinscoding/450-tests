@@ -5,6 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
   { ignores: ['dist'] },
+
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -28,6 +29,17 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+    },
+  },
+
+  {
+    files: ['**/*.test.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        global: 'readonly',
+      },
     },
   },
 ]
