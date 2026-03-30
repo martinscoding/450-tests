@@ -26,7 +26,7 @@ test("Item-Details werden geladen und angezeigt", async ({ page }) => {
   await page.goto("http://localhost:5173");
 
   await expect(page.getByText("Item Details")).toBeVisible();
-  await expect(page.getByText("Milch")).toBeVisible();
+  await expect(page.getByText("Titel: Milch", { exact: true })).toBeVisible();
   await expect(page.getByText("Heute kaufen")).toBeVisible();
 });
 
